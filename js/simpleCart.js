@@ -23,33 +23,33 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************/
 
-function cart( email ) {
-	this.totalItems 	= 0;
+function cart(email) {
+	this.totalItems = 0;
 	this.totalPrice	= 0.00;
-	this.items 		= new Array();
+	this.items = [];
 	this.userEmail = email;
 	// order of columns, you change the order here or by accessing the value in your html
 	this.ItemColumns = ['Image','Name','Price','Options','Quantity','Total'];
 
 	/*	function to initialize the cart when the page is loaded  */
 	this.initialize = function () {
-		if( !readCookie("simpleCart") ) {
+		if(!readCookie('simpleCart')) {
 			this.totalItems  = 0;
 			this.totalPrice = 0.00;
 		} else {
-			data = readCookie("simpleCart").split("&");
-			this.totalItems = data[0]*1;
-			this.totalPrice = data[1]*1;
-			for(x=2;x < (data.length);x++) {
-				newItem = new item();
-				itemData = data[x].split(",");
-				i=0;
-				for(i=0;i<itemData.length;i++) {
+			var data = readCookie('simpleCart').split('&');
+			this.totalItems = data[0] * 1;
+			this.totalPrice = data[1] * 1;
+			for(var x=2; x<data.length; x++) {
+				var newItem = new item();
+				var itemData = data[x].split(',');
+				var pair;
+				for(var i=0; i<itemData.length; i++) {
 					pair = itemData[i].split('=');
 					newItem.addValue(pair[0],pair[1]);
 				}
 				if(!newItem.getValue('name') || !newItem.getValue('price') || !newItem.getValue('quantity')) {
-					alert("item must have price, name, and quantity!");
+					alert('item must have price, name, and quantity!');
 					return false;
 				}
 				this.items[x-2] = newItem;
@@ -84,25 +84,23 @@ function cart( email ) {
 
 	this.setUpEvents = function() {
 			var x=0,element,elements = getElementsByClassName('simpleCart_total');
-
-			x=0;
 			elements = getElementsByClassName('simpleCart_checkout');
-			for( x=0;x<elements.length;x++) {
+			for(x=0; x<elements.length; x++) {
 				element = elements[x];
 				if( element.addEventListener ) {
-					element.addEventListener("click", this.checkOutEvent, false );
+					element.addEventListener('click', this.checkOutEvent, false );
 				} else if( element.attachEvent ) {
-				  	element.attachEvent( "onclick", this.checkOutEvent );
+					element.attachEvent('onclick', this.checkOutEvent );
 				}
 			}
 			x=0;
 			elements = getElementsByClassName('simpleCart_empty');
-			for( x=0;x<elements.length;x++) {
+			for(x=0; x<elements.length; x++) {
 				element = elements[x];
 				if( element.addEventListener ) {
-					element.addEventListener("click", this.emptyEvent, false );
+					element.addEventListener('click', this.emptyEvent, false );
 				} else if( element.attachEvent ) {
-				  	element.attachEvent( "onclick", this.emptyEvent );
+				  	element.attachEvent( 'onclick', this.emptyEvent );
 				}
 			}
 			return;
@@ -116,9 +114,8 @@ function cart( email ) {
 	 *  that will be added.
 	 */
 	this.add = function() {
-		newItem = new item();
-		var x=0;
-		for(x=0;x<arguments.length;x++){
+		var temp, data, tempItem, newItem = new item();
+		for(var x=0;x<arguments.length;x++){
 			temp = arguments[x];
 			data = temp.split('=');
 			newItem.addValue(data[0],data[1]);
@@ -127,21 +124,20 @@ function cart( email ) {
 			alert('Item must have name and price to be added to the cart!');
 			return false;
 		}
-		isnew = true;
+		var isNew = true;
 		if(!newItem.getValue('quantity')) {
 			newItem.addValue('quantity',1);
 		}
 		this.totalItems = this.totalItems + newItem.getValue('quantity');
-		x=0;
-		for( x=0;x < this.items.length;x++ ) {
+		for(x=0; x<this.items.length; x++ ) {
 			tempItem = this.items[x];
-			if( tempItem.equalTo(newItem) ) {
+			if(tempItem.equalTo(newItem)) {
 				tempItem.addValue( 'quantity' , (parseInt(tempItem.getValue('quantity')) + parseInt(newItem.getValue('quantity')) ) );
 				this.totalPrice = this.totalPrice + parseFloat( tempItem.getValue('price') );
-				isnew = false;
+				isNew = false;
 			}
 		}
-		if( isnew ) {
+		if(isNew) {
 			this.items[this.items.length] = newItem;
 			this.totalPrice = this.totalPrice + parseFloat(newItem.getValue('price'));
 		}
@@ -171,18 +167,18 @@ function cart( email ) {
 	 * when anything is changed in the cart.
 	 */
 	this.updateCookie = function () {
-		cookieString = String(this.totalItems) + "&" + String(this.totalPrice);
+		cookieString = String(this.totalItems) + '&' + String(this.totalPrice);
 		x=0;
 		for(x=0;x<this.items.length;x++ ) {
 			tempItem = this.items[x];
-			cookieString = cookieString + "&" + tempItem.cookieString();
+			cookieString = cookieString + '&' + tempItem.cookieString();
 		}
-		createCookie("simpleCart", cookieString, 30 );
-	}
+		createCookie('simpleCart', cookieString, 30 );
+	};
 
 	// reset the variables of the cart, update the cookies
 	this.empty = function () {
-		this.items = new Array();
+		this.items = [];
 		this.totalItems = 0;
 		this.totalPrice = 0.00;
 		this.updateCookie();
@@ -195,7 +191,7 @@ function cart( email ) {
 	 */
 	this.deleteItem = function( item ) {
 		found = false;
-		var temp = new Array();
+		var temp = [];
 		for(x=0; x < this.items.length;x++ ) {
 			tempItem = this.items[x];
 			if( tempItem.equalTo(item) ) {
@@ -232,79 +228,80 @@ function cart( email ) {
 	// update elements on html pages
 	this.updatePageElements = function() {
 		var x=0,element,elements = getElementsByClassName('simpleCart_total');
-		for( x=0;x<elements.length;x++) {
+		for(x=0; x<elements.length; x++) {
 			element = elements[x];
 			element.innerHTML = this.returnTotalPrice();
 		}
 		x=0;
 		elements = getElementsByClassName('simpleCart_quantity');
-		for( x=0;x<elements.length;x++) {
+		for(x=0; x<elements.length; x++) {
 			element = elements[x];
 			element.innerHTML = String(this.totalItems);
 		}
 		elements = getElementsByClassName('simpleCart_items');
-		for( x=0;x<elements.length;x++) {
+		for(x=0; x<elements.length; x++) {
 			cartTable = elements[x];
 			newRow = document.createElement('div');
-			var x=0,i=0;
+			x=0;
+			var i=0;
 			//delete all current rows
 			while (cartTable.childNodes[0]) {
 			    cartTable.removeChild(cartTable.childNodes[0]);
 			}
 
 			// create the header
-			for( x=0;x<this.ItemColumns.length;x++) {
-				if( this.ItemColumns[x] != 'Options' || this.options() ) {
+			for(x=0; x<this.ItemColumns.length; x++) {
+				if(this.ItemColumns[x] !== 'Options' || this.options()) {
 					tempCell = document.createElement('div');
 					tempCell.innerHTML = this.ItemColumns[x];
-					tempCell.className = "item" + this.ItemColumns[x];
+					tempCell.className = 'item' + this.ItemColumns[x];
 					newRow.appendChild(tempCell);
 				}
 			}
-			newRow.className = "cartHeaders";
+			newRow.className = 'cartHeaders';
 			cartTable.appendChild(newRow);
 
 			// create a row for each item
 			x=0;
-			for( x=0;x<this.items.length;x++ ) {
+			for(x=0; x<this.items.length; x++ ) {
 				tempItem = this.items[x];
 				newRow = document.createElement('div');
 				i=0;
 				for(i=0;i<this.ItemColumns.length;i++) {
 					tempCell = document.createElement('div');
-					tempCell.className = "item" + this.ItemColumns[i];
-					if( this.ItemColumns[i] == 'Image' ) {
+					tempCell.className = 'item' + this.ItemColumns[i];
+					if(this.ItemColumns[i] === 'Image') {
 						if( tempItem.getValue('image') ) {
 							tempCell.innerHTML = '<img src="' + tempItem.getValue('image') + '" />';
 						}
 					}
-					if( this.ItemColumns[i] == 'Name' ) {
+					if(this.ItemColumns[i] === 'Name') {
 						tempCell.innerHTML = tempItem.getValue('name');
-					} else if (	this.ItemColumns[i] == 'Price' ) {
+					} else if (this.ItemColumns[i] === 'Price') {
 						tempCell.innerHTML = this.returnFormattedPrice( tempItem.getValue('price'));
-					} else if ( this.ItemColumns[i] == 'Options' && this.options() ) {
+					} else if (this.ItemColumns[i] === 'Options' && this.options() ) {
 						tempCell.innerHTML = tempItem.optionList();
-					} else if (	this.ItemColumns[i] == 'Quantity' ) {
+					} else if (this.ItemColumns[i] === 'Quantity') {
 						tempCell.innerHTML = '<input type="text" onblur="simpleCart.updateQuantity(' + tempItem.functionString() +',\'new_quantity=\' + this.value);return false;"value="' + tempItem.getValue('quantity') + '" />';
-					} else if (	this.ItemColumns[i] == 'Total' ) {
+					} else if (this.ItemColumns[i] === 'Total') {
 						tempCell.innerHTML = this.returnFormattedPrice( tempItem.getValue('quantity')* tempItem.getValue('price') );
 					}
 					newRow.appendChild(tempCell);
 				}
-				newRow.className = "itemContainer"
+				newRow.className = 'itemContainer';
 				cartTable.appendChild(newRow);
 			}
 			// create totals row
 			newRow = document.createElement('div');
 			tempCell = document.createElement('div');
 			tempCell.innerHTML = String(this.totalItems);
-			tempCell.className = "totalItems";
+			tempCell.className = 'totalItems';
 			newRow.appendChild(tempCell);
 			tempCell = document.createElement('div');
 			tempCell.innerHTML = this.returnTotalPrice();
-			tempCell.className = "totalPrice";
+			tempCell.className = 'totalPrice';
 			newRow.appendChild(tempCell);
-			newRow.className = "totalRow";
+			newRow.className = 'totalRow';
 			cartTable.appendChild(newRow);
 		}
 		return false;
@@ -312,20 +309,20 @@ function cart( email ) {
 
 	// return the cart total
 	this.returnTotalPrice = function() {
-		return this.returnFormattedPrice( this.totalPrice );
+		return this.returnFormattedPrice(this.totalPrice);
 	};
 
 	// return a price with the format $xxx.xx
-	this.returnFormattedPrice = function( price ) {
+	this.returnFormattedPrice = function(price) {
 		temp = Math.round(price*100);
 		change = String(temp%100);
-		if( change.length == 0) {
-			change = "00";
-		} else if( change.length == 1) {
-			change = "0" + change;
+		if(change.length === 0) {
+			change = '00';
+		} else if(change.length === 1) {
+			change = '0' + change;
 		}
 		temp = String(Math.floor(temp/100));
-		return "$" + temp + "." + change;
+		return '$' + temp + '.' + change;
 	};
 
 	this.updateQuantity = function() {
@@ -334,7 +331,7 @@ function cart( email ) {
 		for(x=0;x<arguments.length;x++){
 			temp = arguments[x];
 			data = temp.split('=');
-			if( data[0] == 'new_quantity') {
+			if(data[0] === 'new_quantity') {
 				var new_quantity = data[1];
 			} else {
 				newItem.addValue(data[0],data[1]);
@@ -354,17 +351,17 @@ function cart( email ) {
 
 	// send user to paypal checkout with all the items in the cart
 	this.checkOut = function() {
-		if( this.totalItems == 0 ){
-			alert("Your cart is empty!");
+		if(this.totalItems === 0 ){
+			alert('Your cart is empty!');
 			return false;
 		}
-		var winpar = "scrollbars,location,resizable,status";
-		var i,j=0,des,counter;
-		var strn  = "https://www.paypal.com/cgi-bin/webscr?cmd=_cart" +
-		   			"&upload=1" +
-		        	"&business=" + this.userEmail +
-					"&currency_code=USD" +
-		  			"&lc=US";
+		var winpar = 'scrollbars,location,resizable,status';
+		var i, j = 0, des, counter;
+		var strn = 'https://www.paypal.com/cgi-bin/webscr?cmd=_cart' +
+							'&upload=1' +
+							'&business=' + this.userEmail +
+							'&currency_code=USD' +
+		  				'&lc=US';
 		counter = 0;
 		for (counter = 0; counter < this.items.length; counter++) {
 			tempItem = this.items[counter];
@@ -381,7 +378,7 @@ function cart( email ) {
 			}
 
 		}
-		window.open (strn, "paypal", winpar);
+		window.open (strn, 'paypal', winpar);
 		return false;
 	};
 }
@@ -389,28 +386,27 @@ function cart( email ) {
          This is the item class.  It will contain an array of name-value pairs.
  *************************************************************************************************/
 
-function item () {
-	this.names	= new Array();
-	this.values	= new Array();
+function item() {
+	this.names	= [];
+	this.values	= [];
 
 	/* add a name-value pair to the item,
 	 * return false and alert if the names
 	 * and values don't match.
 	 */
 	this.addValue = function(name,value) {
-		if( this.names.length != this.values.length ) {
-			alert("name and value array lengths do not match for this item!");
+		if(this.names.length !== this.values.length) {
+			alert('name and value array lengths do not match for this item!');
 			return false;
 		}
 		found = false;
-		var a=0;
-		for(a=0;a<this.names.length;a++) {
-			if( this.names[a] == name ) {
+		for(var a=0; a<this.names.length; a++) {
+			if(this.names[a] === name) {
 				this.values[a] = value;
 				return;
 			}
 		}
-		if( !found ) {
+		if(!found) {
 			this.names[this.names.length]	= name;
 			this.values[this.values.length]	= value;
 		}
@@ -424,9 +420,8 @@ function item () {
 	 * found
 	 */
 	this.getValue = function(name) {
-		var g=0;
-		for(g=0;g<this.names.length;g++) {
-			if(name==this.names[g]) {
+		for(var g=0; g<this.names.length; g++) {
+			if(name === this.names[g]) {
 				return this.values[g];
 			}
 		}
@@ -437,12 +432,11 @@ function item () {
 	 * the item passed in, false otherwise
 	 */
 	this.equalTo = function(item) {
-		if(this.getSize() != item.getSize() ) {
+		if(this.getSize() !== item.getSize()) {
 			return false;
 		}
-		var q=0;
-		for(q=0;q<this.names.length;q++) {
-			if( this.names[q] != 'quantity' && (item.getValue(this.names[q]) != this.values[q]) ) {
+		for(var q=0; q<this.names.length; q++) {
+			if(this.names[q] !== 'quantity' && (item.getValue(this.names[q]) !== this.values[q])) {
 				return false;
 			}
 		}
@@ -455,40 +449,37 @@ function item () {
 
 	this.cookieString = function() {
 		returnString = '';
-		var i=0;
-		returnString = this.names[i] + "=" + this.values[i];
-		i=1;
-		for(i=1;i<this.names.length;i++) {
-			returnString = returnString + "," + this.names[i] + "=" + this.values[i];
+		var i = 0;
+		returnString = this.names[i] + '=' + this.values[i];
+		for(i = 1; i<this.names.length; i++) {
+			returnString = returnString + ',' + this.names[i] + '=' + this.values[i];
 		}
 		return returnString;
 	};
 
 	this.functionString = function() {
 		returnString = '\'';
-		var f=0;
-		returnString = '\'' + this.names[f] + "=" + this.values[f];
-		f=1;
-		for(f=1;f<this.names.length;f++) {
+		var f = 0;
+		returnString = '\'' + this.names[f] + '=' + this.values[f];
+		for(f = 1; f<this.names.length; f++) {
 			returnString = returnString + "','" + this.names[f] + "=" + this.values[f];
 		}
 		returnString = returnString + '\'';
 		return returnString;
-	}
+	};
 
 	this.optionList = function() {
 		returnString = '';
-		if( this.getSize() < 4 ) {
+		if(this.getSize() < 4) {
 			return null;
 		}
-		var o=0;
-		for(o=0;o<this.names.length;o++) {
-			if(this.names[o] != 'quantity' && this.names[o] != 'price' && this.names[o] != 'name' && this.names[o] != 'image') {
+		for(var o = 0; o < this.names.length; o++) {
+			if(this.names[o] !== 'quantity' && this.names[o] !== 'price' && this.names[o] !== 'name' && this.names[o] !== 'image') {
 				returnString = returnString + this.names[o] + ':' + this.values[o] + ', ';
 			}
 		}
-		while(returnString.charAt(returnString.length-1)==',' || returnString.charAt(returnString.length-1)==' ' || returnString.charAt(returnString.length)==':'){
-			returnString = returnString.substring(0,returnString.length-1);
+		while(returnString.charAt(returnString.length - 1) === ',' || returnString.charAt(returnString.length - 1) === ' ' || returnString.charAt(returnString.length) === ':'){
+			returnString = returnString.substring(0, returnString.length - 1);
 		}
 		return returnString;
 	};
@@ -499,28 +490,32 @@ function item () {
 // Thanks to Peter-Paul Koch for these cookie functions! (http://www.quirksmode.org/js/cookies.html)
 //*************************************************************************************************
 function createCookie(name,value,days) {
+	var expires = '';
 	if (days) {
 		var date = new Date();
-		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
+		date.setTime(date.getTime()+(days * 24 * 60 * 60 * 1000));
+		expires = '; expires=' + date.toGMTString();
 	}
-	else var expires = "";
-	document.cookie = name+"="+value+expires+"; path=/";
+	document.cookie = name+ '=' +value + expires + '; path=/';
 }
 
 function readCookie(name) {
-	var nameEQ = name + "=";
+	var nameEQ = name + '=';
 	var ca = document.cookie.split(';');
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		while (c.charAt(0) === ' ') {
+			c = c.substring(1, c.length);
+		}
+		if (c.indexOf(nameEQ) === 0) {
+			return c.substring(nameEQ.length, c.length);
+		}
 	}
 	return null;
 }
 
 function eraseCookie(name) {
-	createCookie(name,"",-1);
+	createCookie(name, '', -1);
 }
 
 //*************************************************************************************************
@@ -528,7 +523,7 @@ function eraseCookie(name) {
 	Developed by Robert Nyman, http://www.robertnyman.com
 	Code/licensing: http://code.google.com/p/getelementsbyclassname/
 */
-var getElementsByClassName = function (className, tag, elm){
+var getElementsByClassName = function (className, tag, elm) {
 	if (document.getElementsByClassName) {
 		getElementsByClassName = function (className, tag, elm) {
 			elm = elm || document;
@@ -549,9 +544,9 @@ var getElementsByClassName = function (className, tag, elm){
 		getElementsByClassName = function (className, tag, elm) {
 			tag = tag || "*";
 			elm = elm || document;
-			var classes = className.split(" "),
-				classesToCheck = "",
-				xhtmlNamespace = "http://www.w3.org/1999/xhtml",
+			var classes = className.split(' '),
+				classesToCheck = '',
+				xhtmlNamespace = 'http://www.w3.org/1999/xhtml',
 				namespaceResolver = (document.documentElement.namespaceURI === xhtmlNamespace)? xhtmlNamespace : null,
 				returnElements = [],
 				elements,
@@ -573,21 +568,21 @@ var getElementsByClassName = function (className, tag, elm){
 	}
 	else {
 		getElementsByClassName = function (className, tag, elm) {
-			tag = tag || "*";
+			tag = tag || '*';
 			elm = elm || document;
-			var classes = className.split(" "),
+			var classes = className.split(' '),
 				classesToCheck = [],
-				elements = (tag === "*" && elm.all)? elm.all : elm.getElementsByTagName(tag),
+				elements = (tag === '*' && elm.all)? elm.all : elm.getElementsByTagName(tag),
 				current,
 				returnElements = [],
 				match;
 			for(var k=0, kl=classes.length; k<kl; k+=1){
-				classesToCheck.push(new RegExp("(^|\\s)" + classes[k] + "(\\s|$)"));
+				classesToCheck.push(new RegExp('(^|\\s)' + classes[k] + '(\\s|$)'));
 			}
 			for(var l=0, ll=elements.length; l<ll; l+=1){
 				current = elements[l];
 				match = false;
-				for(var m=0, ml=classesToCheck.length; m<ml; m+=1){
+				for(var m=0, ml=classesToCheck.length; m<ml; m+=1) {
 					match = classesToCheck[m].test(current.className);
 					if (!match) {
 						break;
@@ -602,11 +597,12 @@ var getElementsByClassName = function (className, tag, elm){
 	}
 	return getElementsByClassName(className, tag, elm);
 };
+
 //*************************************************************************************************
 
 function createCart(){
 	simpleCart.initialize();
 	return;
 }
-var ElementCheckInterval = setInterval("simpleCart.updatePageElements()", 2000);
+setInterval(simpleCart.updatePageElements(), 2000);
 window.onload = createCart;
